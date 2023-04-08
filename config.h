@@ -51,10 +51,10 @@ static const Layout layouts[] = {
 //#define MODKEY Mod1Mask
 #define MODKEY Mod4Mask
 #define TAGKEYS(KEY,TAG) \
-	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
-	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
-	{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
-	{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
+{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
+{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
+{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
+{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
 
 /* helper for spawning shell commands in the pre dwm-5.0 fashion */
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
@@ -64,25 +64,36 @@ static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() 
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
 static const char *passcmd[] = { "passmenu", NULL };
 static const char *termcmd[]  = { "st", NULL };
-static const char *lightup[]  = { "sh", "-c", "doas light $((`cat /sys/class/backlight/intel_backlight/brightness`+10))", NULL };
-static const char *lightdown[]  = { "sh", "-c", "doas lightdown", NULL };
 static const char *klightup[]  = { "sh", "-c", "doas klight $((`cat /sys/class/leds/smc::kbd_backlight/brightness`+10))", NULL };
 static const char *klightdown[]  = { "sh", "-c", "doas klightdown", NULL };
 static const char *maimcmd[]  = { "sh", "-c", "maim -m 1 ~/Pictures/screen-$(date +%Y%m%d_%H%M%S).png", NULL };
 static const char *altmaimcmd[]  = { "sh", "-c", "maim -m 1 -s ~/Pictures/screen-$(date +%Y%m%d_%H%M%S).png", NULL };
+static const char *upvol[]   = { "/usr/bin/pactl", "set-sink-volume", "0", "+5%",     NULL };
+static const char *downvol[] = { "/usr/bin/pactl", "set-sink-volume", "0", "-5%",     NULL };
+static const char *mutevol[] = { "/usr/bin/pactl", "set-sink-mute",   "0", "toggle",  NULL };
+static const char *light_up[] =   { "xbacklight", "+10", NULL };
+static const char *light_down[] = { "xbacklight", "-10", NULL };
+static const char *pauseaudio[]   = { "/usr/bin/pactl", "suspend-sink", "1", NULL };
+static const char *resumeaudio[] =  { "/usr/bin/pactl", "suspend-sink", "0", NULL };
 
 static Key keys[] = {
 	/* modifier                     key        function        argument */
-	{ MODKEY,                       XK_F35,						spawn,          {.v = lightup } },
-	{ MODKEY,                       XF86XK_MonBrightnessDown,	spawn,          {.v = lightdown } },
-	{ MODKEY,                       XF86XK_MonBrightnessUp,		spawn,          {.v = lightup } },
-	{ MODKEY,                       XF86XK_KbdBrightnessDown,	spawn,          {.v = klightdown } },
-	{ MODKEY,                       XF86XK_KbdBrightnessUp,		spawn,          {.v = klightup } },
-	{ MODKEY,                       XK_Print   ,spawn,          {.v = maimcmd } },
-	{ MODKEY|ShiftMask,             XK_Print   ,spawn,          {.v = altmaimcmd } },
-	{ MODKEY,                       XK_p,      spawn,          {.v = passcmd } },
-	{ MODKEY,                       XK_d,      spawn,          {.v = dmenucmd } },
-	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
+	{ 0,				XF86XK_KbdBrightnessDown,	spawn,          {.v = klightdown } },
+	{ 0,				XF86XK_KbdBrightnessUp,		spawn,          {.v = klightup } },
+	{ 0,				XK_Print,					spawn,          {.v = maimcmd } },
+	{ 0,				XF86XK_MonBrightnessUp,		spawn,			{.v = light_up} },
+	{ 0,				XF86XK_MonBrightnessDown,	spawn,			{.v = light_down} },
+	{ 0,				XF86XK_AudioLowerVolume,	spawn,			{.v = downvol } },
+	{ 0,				XF86XK_AudioRaiseVolume,	spawn,			{.v = upvol   } },
+	{ 0,				XF86XK_AudioMute,			spawn,			{.v = mutevol } },
+	{ 0,				XF86XK_AudioPlay,			spawn,			{.v = resumeaudio } },
+	{ 0,				XF86XK_AudioStop,			spawn,			{.v = pauseaudio   } },
+	{ 0,				XK_Print,					spawn,          {.v = maimcmd } },
+	{ ShiftMask,        XK_Print,					spawn,          {.v = altmaimcmd } },
+	
+	{ MODKEY,                       XK_p,      		spawn,          {.v = passcmd } },
+	{ MODKEY,                       XK_d,      		spawn,          {.v = dmenucmd } },
+	{ MODKEY|ShiftMask,             XK_Return, 		spawn,          {.v = termcmd } },
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
@@ -110,15 +121,15 @@ static Key keys[] = {
 	{ MODKEY,                       XK_equal,  setgaps,        {.i = +1 } },
 	{ MODKEY|ShiftMask,             XK_equal,  setgaps,        {.i = 0  } },
 	TAGKEYS(                        XK_1,                      0)
-	TAGKEYS(                        XK_2,                      1)
-	TAGKEYS(                        XK_3,                      2)
-	TAGKEYS(                        XK_4,                      3)
-	TAGKEYS(                        XK_5,                      4)
-	TAGKEYS(                        XK_6,                      5)
-	TAGKEYS(                        XK_7,                      6)
-	TAGKEYS(                        XK_8,                      7)
-	TAGKEYS(                        XK_9,                      8)
-	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
+		TAGKEYS(                        XK_2,                      1)
+		TAGKEYS(                        XK_3,                      2)
+		TAGKEYS(                        XK_4,                      3)
+		TAGKEYS(                        XK_5,                      4)
+		TAGKEYS(                        XK_6,                      5)
+		TAGKEYS(                        XK_7,                      6)
+		TAGKEYS(                        XK_8,                      7)
+		TAGKEYS(                        XK_9,                      8)
+		{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
 };
 
 /* button definitions */
