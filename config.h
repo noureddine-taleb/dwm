@@ -75,6 +75,7 @@ static const char *light_up[] =   { "xbacklight", "+10", NULL };
 static const char *light_down[] = { "xbacklight", "-10", NULL };
 static const char *pauseaudio[]   = { "/usr/bin/pactl", "suspend-sink", "1", NULL };
 static const char *resumeaudio[] =  { "/usr/bin/pactl", "suspend-sink", "0", NULL };
+static const char *suspend[] =  { "/usr/bin/doas", "systemctl", "suspend", NULL };
 
 static Key keys[] = {
 	/* modifier                     key        function        argument */
@@ -90,6 +91,7 @@ static Key keys[] = {
 	{ 0,				XF86XK_AudioStop,			spawn,			{.v = pauseaudio   } },
 	{ 0,				XK_Print,					spawn,          {.v = maimcmd } },
 	{ ShiftMask,        XK_Print,					spawn,          {.v = altmaimcmd } },
+	{ MODKEY,        	XK_Pause,					spawn,          {.v = suspend } },
 	
 	{ MODKEY,                       XK_p,      		spawn,          {.v = passcmd } },
 	{ MODKEY,                       XK_d,      		spawn,          {.v = dmenucmd } },
